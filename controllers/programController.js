@@ -1,7 +1,7 @@
 const Program = require("../models/Program");
 const User = require("../models/User");
 
-exports.createCourse = async (req, res) => {
+exports.createProgram = async (req, res) => {
   try {
     const program = await Program.create({
       name: req.body.name,
@@ -26,7 +26,7 @@ exports.getAllPrograms = async (req, res) => {
       filter = { name: query };
     }
 
-    const programs = await Course.find({
+    const programs = await Program.find({
       $or: [{ name: { $regex: ".*" + filter.name + ".*", $options: "i" } }],
     })
       .sort("-createdAt")
@@ -44,15 +44,15 @@ exports.getAllPrograms = async (req, res) => {
   }
 };
 
-exports.getCourse = async (req, res) => {
+exports.getProgram = async (req, res) => {
   try {
     const user = await User.findById(req.session.userID);
-    const course = await Course.findOne({ slug: req.params.slug }).populate(
+    const program = await Program.findOne({ slug: req.params.slug }).populate(
       "user"
     );
 
-    res.status(200).render("course", {
-      course,
+    res.status(200).render("program", {
+      program,
       page_name: "programs",
       user,
     });
@@ -64,10 +64,10 @@ exports.getCourse = async (req, res) => {
   }
 };
 
-exports.enrollCourse = async (req, res) => {
+exports.enrollProgram = async (req, res) => {
   try {
     const user = await User.findById(req.session.userID);
-    await user.programs.push({ _id: req.body.course_id });
+    await user.programs.push({ _id: req.body.program_id });
     await user.save();
 
     res.status(200).redirect("/users/dashboard");
@@ -79,10 +79,10 @@ exports.enrollCourse = async (req, res) => {
   }
 };
 
-exports.releaseCourse = async (req, res) => {
+exports.releaseProgram = async (req, res) => {
   try {
     const user = await User.findById(req.session.userID);
-    await user.programs.pull({ _id: req.body.course_id });
+    await user.programs.pull({ _id: req.body.program_id });
     await user.save();
 
     res.status(200).redirect("/users/dashboard");
@@ -94,11 +94,11 @@ exports.releaseCourse = async (req, res) => {
   }
 };
 
-exports.deleteCourse = async (req, res) => {
+exports.deleteProgram = async (req, res) => {
   try {
-    const course = await Course.findOneAndRemove({ slug: req.params.slug });
+    const program = await Program.findOneAndRemove({ slug: req.params.slug });
 
-    req.flash("error", `${course.name} has been removed successfully`);
+    req.flash("error", `${program.name} has been removed successfully`);
 
     res.status(200).redirect("/users/dashboard");
   } catch (error) {
@@ -109,13 +109,13 @@ exports.deleteCourse = async (req, res) => {
   }
 };
 
-exports.updateCourse = async (req, res) => {
+exports.updateProgram = async (req, res) => {
   try {
-    const course = await Course.findOne({ slug: req.params.slug });
-    course.name = req.body.name;
-    course.description = req.body.description;
+    const program = await Program.findOne({ slug: req.params.slug });
+    program.name = req.body.name;
+    program.description = req.body.description;
 
-    course.save();
+    program.save();
 
     res.status(200).redirect("/users/dashboard");
   } catch (error) {
